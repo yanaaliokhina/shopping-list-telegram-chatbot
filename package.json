@@ -1,0 +1,25 @@
+{
+  "name": "smart-shopping-list-chatbot",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Smart Shopping List Chatbot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yanaaliokhina/smart-shopping-list-chatbot.git"
+  },
+  "author": "yana.aliokhina",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yanaaliokhina/smart-shopping-list-chatbot/issues"
+  },
+  "homepage": "https://github.com/yanaaliokhina/smart-shopping-list-chatbot#readme",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "node-telegram-bot-api": "^0.67.0"
+  }
+}
