@@ -13,4 +13,14 @@ export class ItemService {
             );
         });
     }
-};
+
+    addItem(userId, name) {
+        return new Promise((resolve) => {
+            this.db.run(
+                "INSERT INTO items (user_id, name) VALUES (?, ?)",
+                [userId, name],
+                resolve
+            );
+        });
+    };
+}
