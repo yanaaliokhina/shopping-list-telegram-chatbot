@@ -35,7 +35,7 @@ export class TelegramBotCommandHandler {
                 user: msg.from.id
             });
 
-            await this.bot.sendMessage(chatId, MENU_ITEM_ERROR);
+            this.bot.sendMessage(chatId, MENU_ITEM_ERROR);
         }
     }
 
@@ -54,7 +54,7 @@ export class TelegramBotCommandHandler {
                 user: msg.from.id
             });
 
-            await this.bot.sendMessage(chatId, MENU_ITEM_ERROR);
+            this.bot.sendMessage(chatId, MENU_ITEM_ERROR);
         }
     }
 
@@ -113,7 +113,7 @@ export class TelegramBotCommandHandler {
                 user: msg.from.id
             });
 
-            await this.bot.sendMessage(chatId, MENU_ITEM_ERROR);
+            this.bot.sendMessage(chatId, MENU_ITEM_ERROR);
         }
     }
 
@@ -134,7 +134,7 @@ export class TelegramBotCommandHandler {
                 user: msg.from.id
             });
 
-            await this.bot.sendMessage(chatId, MENU_ITEM_ERROR);
+            this.bot.sendMessage(chatId, MENU_ITEM_ERROR);
         }
     }
 
@@ -165,7 +165,7 @@ export class TelegramBotCommandHandler {
                 user: msg.from.id
             });
 
-            await this.bot.sendMessage(chatId, MENU_ITEM_ERROR);
+            this.bot.sendMessage(chatId, MENU_ITEM_ERROR);
         }
     }
 
@@ -187,7 +187,7 @@ export class TelegramBotCommandHandler {
                 user: msg.from.id
             });
 
-            await this.bot.sendMessage(chatId, MENU_ITEM_ERROR);
+            this.bot.sendMessage(chatId, MENU_ITEM_ERROR);
         }
     }
 
@@ -216,7 +216,7 @@ export class TelegramBotCommandHandler {
                 user: msg.from.id
             });
 
-            await this.bot.sendMessage(chatId, MENU_ITEM_ERROR);
+            this.bot.sendMessage(chatId, MENU_ITEM_ERROR);
         }
     }
 
@@ -243,7 +243,7 @@ export class TelegramBotCommandHandler {
                 user: message.from.id
             });
 
-            await this.bot.sendMessage(chatId, MENU_ITEM_ERROR);
+            this.bot.sendMessage(chatId, MENU_ITEM_ERROR);
         }
     }
 
@@ -272,7 +272,7 @@ export class TelegramBotCommandHandler {
         } catch (error) {
             console.error("handleDeleteItemsCommand failed:", error);
 
-            await this.bot.sendMessage(chatId, MENU_ITEM_ERROR);
+            this.bot.sendMessage(chatId, MENU_ITEM_ERROR);
         }
     }
 

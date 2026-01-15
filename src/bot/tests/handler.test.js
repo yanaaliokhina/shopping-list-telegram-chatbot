@@ -1,9 +1,14 @@
 import { describe, jest, beforeEach, test, expect } from "@jest/globals";
 import { TelegramBotCommandHandler } from "../handler.js";
 import {
+    TELEGRAM_BOT_VIEW_LIST_MENU_ITEM,
     TELEGRAM_BOT_MAIN_MENU,
+    TELEGRAM_BOT_ADD_ITEMS_MENU_ITEM,
     TELEGRAM_BOT_ADD_ITEMS_MENU,
-    MENU_ITEM_ERROR
+    TELEGRAM_BOT_CANCEL_ADD_ITEMS_MENU_ITEM,
+    TELEGRAM_BOT_CANCEL_MARK_ITEMS_BOUGHT_MENU_ITEM,
+    TELEGRAM_BOT_DELETE_ITEMS_MENU_ITEM,
+    MENU_ITEM_ERROR,
 } from "../constants.js";
 
 describe("TelegramBotCommandHandler", () => {
@@ -73,6 +78,21 @@ describe("TelegramBotCommandHandler", () => {
                 { reply_markup: { remove_keyboard: true } }
             );
         });
+
+        test("shows error on failure", async () => {
+            const sendMessageSpy = jest
+                .spyOn(bot, "sendMessage")
+                .mockImplementationOnce(() => {
+                    throw new Error("Telegram error");
+                });
+
+            await handler.handleStopCommand(baseMsg);
+
+            expect(sendMessageSpy).toHaveBeenLastCalledWith(
+                100,
+                MENU_ITEM_ERROR
+            );
+        });
     });
 
     describe("handleViewListCommand()", () => {
@@ -117,6 +137,21 @@ describe("TelegramBotCommandHandler", () => {
                 TELEGRAM_BOT_ADD_ITEMS_MENU
             );
         });
+
+        test("shows error on failure", async () => {
+            const sendMessageSpy = jest
+                .spyOn(bot, "sendMessage")
+                .mockImplementationOnce(() => {
+                    throw new Error("Telegram error");
+                });
+
+            await handler.handleAddItemsCommand(baseMsg);
+
+            expect(sendMessageSpy).toHaveBeenLastCalledWith(
+                100,
+                MENU_ITEM_ERROR
+            );
+        });
     });
 
     describe("handleTextTypingCommand()", () => {
@@ -143,6 +178,25 @@ describe("TelegramBotCommandHandler", () => {
             expect(itemService.addItem).not.toHaveBeenCalled();
             expect(bot.sendMessage).not.toHaveBeenCalled();
         });
+
+        test("shows error on failure", async () => {
+            handler.userState.set(200, { mode: "ADDING_ITEMS" });
+
+            userService.getOrCreateUser.mockResolvedValue(1);
+            itemService.addItem.mockRejectedValue(
+                new Error("DB error")
+            );
+
+            await handler.handleTextTypingCommand({
+                ...baseMsg,
+                text: "Milk"
+            });
+
+            expect(bot.sendMessage).toHaveBeenCalledWith(
+                100,
+                MENU_ITEM_ERROR
+            );
+        });
     });
 
     describe("handleCancelAddItemsCommand()", () => {
@@ -157,6 +211,21 @@ describe("TelegramBotCommandHandler", () => {
                 100,
                 "✅ Add mode exited.",
                 TELEGRAM_BOT_MAIN_MENU
+            );
+        });
+
+        test("shows error on failure", async () => {
+            const sendMessageSpy = jest
+                .spyOn(bot, "sendMessage")
+                .mockImplementationOnce(() => {
+                    throw new Error("Telegram error");
+                });
+
+            await handler.handleCancelAddItemsCommand(baseMsg);
+
+            expect(sendMessageSpy).toHaveBeenLastCalledWith(
+                100,
+                MENU_ITEM_ERROR
             );
         });
     });
@@ -209,7 +278,8 @@ describe("TelegramBotCommandHandler", () => {
                     message_id: 10,
                     reply_markup: {
                         inline_keyboard: [[
-                            { text: "🛒 Milk", callback_data: "buy_5" }
+                            { text: "🛒 Milk", callback_data: "buy_5" },
+                            { text: "🛒 Butter", callback_data: "buy_6" }
                         ]]
                     }
                 }
@@ -220,7 +290,7 @@ describe("TelegramBotCommandHandler", () => {
         });
 
         test("handles disabled callback without updating DB", async () => {
-            await handler.handleCallbackQuery({ // TODO
+            await handler.handleCallbackQuery({
                 id: "cb1",
                 data: "disabled",
                 message: { chat: { id: 100 } }
@@ -308,6 +378,153 @@ describe("TelegramBotCommandHandler", () => {
                         ]]
                     }
                 })
+            );
+        });
+
+        test("shows error on failure", async () => {
+            userService.getOrCreateUser.mockRejectedValue(
+                new Error("DB error")
+            );
+
+            await handler.handleDeleteItemsCommand(baseMsg);
+
+            expect(bot.sendMessage).toHaveBeenCalledWith(
+                100,
+                MENU_ITEM_ERROR
+            );
+        });
+    });
+
+    describe("handleMessageCommand()", () => {
+        test("routes to handleViewListCommand", async () => {
+            const spy = jest.spyOn(handler, "handleViewListCommand");
+
+            await handler.handleMessageCommand({
+                ...baseMsg,
+                text: TELEGRAM_BOT_VIEW_LIST_MENU_ITEM
+            });
+
+            expect(spy).toHaveBeenCalled();
+        });
+
+        test("routes to handleAddItemsCommand", async () => {
+            const spy = jest.spyOn(handler, "handleAddItemsCommand");
+
+            await handler.handleMessageCommand({
+                ...baseMsg,
+                text: TELEGRAM_BOT_ADD_ITEMS_MENU_ITEM
+            });
+
+            expect(spy).toHaveBeenCalled();
+        });
+
+        test("routes to handleDeleteItemsCommand", async () => {
+            const spy = jest.spyOn(handler, "handleDeleteItemsCommand");
+
+            await handler.handleMessageCommand({
+                ...baseMsg,
+                text: TELEGRAM_BOT_DELETE_ITEMS_MENU_ITEM
+            });
+
+            expect(spy).toHaveBeenCalled();
+        });
+
+        test("routes random text to handleTextTypingCommand", async () => {
+            const spy = jest.spyOn(handler, "handleTextTypingCommand");
+
+            await handler.handleMessageCommand({
+                ...baseMsg,
+                text: "random text"
+            });
+
+            expect(spy).toHaveBeenCalled();
+        });
+
+        test("routes random text to handleCancelAddItemsCommand", async () => {
+            const spy = jest.spyOn(handler, "handleCancelAddItemsCommand");
+
+            await handler.handleMessageCommand({
+                ...baseMsg,
+                text: TELEGRAM_BOT_CANCEL_ADD_ITEMS_MENU_ITEM
+            });
+
+            expect(spy).toHaveBeenCalled();
+        });
+
+        test("routes random text to handleMarkItemsBoughtCommand", async () => {
+            const spy = jest.spyOn(handler, "handleMarkItemsBoughtCommand");
+
+            await handler.handleMessageCommand({
+                ...baseMsg,
+                text: TELEGRAM_BOT_CANCEL_MARK_ITEMS_BOUGHT_MENU_ITEM
+            });
+
+            expect(spy).toHaveBeenCalled();
+        });
+
+        test("shows error on failure", async () => {
+            userService.getOrCreateUser.mockRejectedValue(
+                new Error("DB error")
+            );
+
+            await handler.handleViewListCommand(baseMsg);
+
+            expect(bot.sendMessage).toHaveBeenCalledWith(
+                100,
+                MENU_ITEM_ERROR
+            );
+        });
+    });
+
+    describe("handleCallbackQuery() routing", () => {
+        test("routes delete callback", async () => {
+            const spy = jest.spyOn(handler, "handleDeleteItemCallbackQuery");
+
+            await handler.handleCallbackQuery({
+                id: "cb1",
+                data: "delete_1",
+                message: {
+                    chat: { id: 100 },
+                    reply_markup: { inline_keyboard: [] }
+                }
+            });
+
+            expect(spy).toHaveBeenCalled();
+        });
+
+        test("routes buy callback", async () => {
+            const spy = jest.spyOn(handler, "handleMarkItemAsBoughtCallbackQuery");
+
+            await handler.handleCallbackQuery({
+                id: "cb1",
+                data: "buy_1",
+                message: {
+                    chat: { id: 100 },
+                    reply_markup: { inline_keyboard: [] }
+                }
+            });
+
+            expect(spy).toHaveBeenCalled();
+        });
+
+        test("shows error on failure", async () => {
+            jest
+                .spyOn(handler, "handleDeleteItemCallbackQuery")
+                .mockRejectedValue(new Error("DB error"));
+
+            await handler.handleCallbackQuery({
+                id: "cb1",
+                data: "delete_1",
+                message: {
+                    chat: { id: 100 },
+                    from: { id: 200 },
+                    reply_markup: { inline_keyboard: [] }
+                }
+            });
+
+            expect(bot.sendMessage).toHaveBeenCalledWith(
+                100,
+                MENU_ITEM_ERROR
             );
         });
     });
