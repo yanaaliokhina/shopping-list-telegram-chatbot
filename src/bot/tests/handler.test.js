@@ -14,6 +14,7 @@ import {
 describe("TelegramBotCommandHandler", () => {
     let userService;
     let itemService;
+    let userCacheService;
     let bot;
     let handler;
 
@@ -26,6 +27,10 @@ describe("TelegramBotCommandHandler", () => {
     beforeEach(() => {
         userService = {
             getOrCreateUser: jest.fn()
+        };
+
+        userCacheService = {
+            getUserId: jest.fn()
         };
 
         itemService = {
@@ -42,16 +47,16 @@ describe("TelegramBotCommandHandler", () => {
             answerCallbackQuery: jest.fn()
         };
 
-        handler = new TelegramBotCommandHandler(userService, itemService, bot);
+        handler = new TelegramBotCommandHandler(userService, itemService, userCacheService, bot);
     });
 
     describe("handleStartCommand()", () => {
         test("sends welcome message", async () => {
-            userService.getOrCreateUser.mockResolvedValue(1);
+            userCacheService.getUserId.mockResolvedValue(1);
 
             await handler.handleStartCommand(baseMsg);
 
-            expect(userService.getOrCreateUser).toHaveBeenCalledWith(200);
+            expect(userCacheService.getUserId).toHaveBeenCalledWith(200);
             expect(bot.sendMessage).toHaveBeenCalledWith(
                 100,
                 expect.stringContaining("Welcome"),
@@ -60,7 +65,7 @@ describe("TelegramBotCommandHandler", () => {
         });
 
         test("shows error message on failure", async () => {
-            userService.getOrCreateUser.mockRejectedValue(new Error("DB error"));
+            userCacheService.getUserId.mockRejectedValue(new Error("DB error"));
 
             await handler.handleStartCommand(baseMsg);
 
@@ -97,7 +102,7 @@ describe("TelegramBotCommandHandler", () => {
 
     describe("handleViewListCommand()", () => {
         test("shows empty list message", async () => {
-            userService.getOrCreateUser.mockResolvedValue(1);
+            userCacheService.getUserId.mockResolvedValue(1);
             itemService.getItems.mockResolvedValue([]);
 
             await handler.handleViewListCommand(baseMsg);
@@ -110,7 +115,7 @@ describe("TelegramBotCommandHandler", () => {
         });
 
         test("shows formatted list of items", async () => {
-            userService.getOrCreateUser.mockResolvedValue(1);
+            userCacheService.getUserId.mockResolvedValue(1);
             itemService.getItems.mockResolvedValue([
                 { name: "Milk", bought: false },
                 { name: "Bread", bought: true }
@@ -157,7 +162,7 @@ describe("TelegramBotCommandHandler", () => {
     describe("handleTextTypingCommand()", () => {
         test("adds item when in ADDING_ITEMS mode", async () => {
             handler.userState.set(200, { mode: "ADDING_ITEMS" });
-            userService.getOrCreateUser.mockResolvedValue(1);
+            userCacheService.getUserId.mockResolvedValue(1);
             itemService.addItem.mockResolvedValue();
 
             await handler.handleTextTypingCommand({
@@ -182,7 +187,7 @@ describe("TelegramBotCommandHandler", () => {
         test("shows error on failure", async () => {
             handler.userState.set(200, { mode: "ADDING_ITEMS" });
 
-            userService.getOrCreateUser.mockResolvedValue(1);
+            userCacheService.getUserId.mockResolvedValue(1);
             itemService.addItem.mockRejectedValue(
                 new Error("DB error")
             );
@@ -202,7 +207,7 @@ describe("TelegramBotCommandHandler", () => {
     describe("handleCancelAddItemsCommand()", () => {
         test("exits add mode and shows main menu", async () => {
             handler.userState.set(200, { mode: "ADDING_ITEMS" });
-            userService.getOrCreateUser.mockResolvedValue(200);
+            userCacheService.getUserId.mockResolvedValue(200);
 
             await handler.handleCancelAddItemsCommand(baseMsg);
 
@@ -232,7 +237,7 @@ describe("TelegramBotCommandHandler", () => {
 
     describe("handleMarkItemsBoughtCommand()", () => {
         test("shows message when no unbought items exist", async () => {
-            userService.getOrCreateUser.mockResolvedValue(1);
+            userCacheService.getUserId.mockResolvedValue(1);
             itemService.getUnboughtItems.mockResolvedValue([]);
 
             await handler.handleMarkItemsBoughtCommand(baseMsg);
@@ -245,7 +250,7 @@ describe("TelegramBotCommandHandler", () => {
         });
 
         test("shows inline keyboard with items", async () => {
-            userService.getOrCreateUser.mockResolvedValue(1);
+            userCacheService.getUserId.mockResolvedValue(1);
             itemService.getUnboughtItems.mockResolvedValue([
                 { id: 1, name: "Milk" }
             ]);
@@ -348,7 +353,7 @@ describe("TelegramBotCommandHandler", () => {
 
     describe("handleDeleteItemsCommand()", () => {
         test("shows message when no unbought items exist", async () => {
-            userService.getOrCreateUser.mockResolvedValue(1);
+            userCacheService.getUserId.mockResolvedValue(1);
             itemService.getItems.mockResolvedValue([]);
 
             await handler.handleDeleteItemsCommand(baseMsg);
@@ -361,7 +366,7 @@ describe("TelegramBotCommandHandler", () => {
         });
 
         test("shows inline keyboard with items", async () => {
-            userService.getOrCreateUser.mockResolvedValue(1);
+            userCacheService.getUserId.mockResolvedValue(1);
             itemService.getItems.mockResolvedValue([
                 { id: 1, name: "Milk" }
             ]);
@@ -382,7 +387,7 @@ describe("TelegramBotCommandHandler", () => {
         });
 
         test("shows error on failure", async () => {
-            userService.getOrCreateUser.mockRejectedValue(
+            userCacheService.getUserId.mockRejectedValue(
                 new Error("DB error")
             );
 
@@ -463,7 +468,7 @@ describe("TelegramBotCommandHandler", () => {
         });
 
         test("shows error on failure", async () => {
-            userService.getOrCreateUser.mockRejectedValue(
+            userCacheService.getUserId.mockRejectedValue(
                 new Error("DB error")
             );
 

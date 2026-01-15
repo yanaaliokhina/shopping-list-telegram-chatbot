@@ -11,6 +11,10 @@ export function loadEnv() {
     throw new Error("DATABASE_PATH is missing");
   }
 
+  if (! process.env.MEMCACHE_URL) {
+    throw new Error("MEMCACHE_URL is missing");
+  }
+  
   return {
     botToken: process.env.TELEGRAM_BOT_TOKEN,
     dbPath: process.env.DATABASE_PATH

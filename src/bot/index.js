@@ -1,7 +1,8 @@
 import TelegramBot from "node-telegram-bot-api";
+import memjs from "memjs";
 import { loadEnv } from "../utils/env.js";
 import { db } from "../db/index.js";
-import { UserService, ItemService } from "../services/index.js";
+import { UserService, ItemService, UserCacheService } from "../services/index.js";
 import { UserRepository, ItemRepository } from "../repositories/index.js";
 import { TelegramBotCommandHandler } from "./handler.js";
 
@@ -11,10 +12,12 @@ export function initBot() {
 
     const userService = new UserService(userRepo);
     const itemService = new ItemService(itemRepo);
+    const cacheClient = memjs.Client.create(process.env.MEMCACHE_URL);
+    const userCacheService = new UserCacheService(userService, cacheClient);
 
     const { botToken } = loadEnv();
     const bot = new TelegramBot(botToken, { polling: true });
-    const botComandHandler = new TelegramBotCommandHandler(userService, itemService, bot);
+    const botComandHandler = new TelegramBotCommandHandler(userService, itemService, userCacheService, bot);
 
     bot.onText(/\/start/, (msg) => botComandHandler.handleStartCommand(msg));
     bot.onText(/\/stop/, (msg) => botComandHandler.handleStopCommand(msg));

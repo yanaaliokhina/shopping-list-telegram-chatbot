@@ -11,9 +11,10 @@ import {
 
 export class TelegramBotCommandHandler {
 
-    constructor(userService, itemService, bot) {
+    constructor(userService, itemService, userCacheService, bot) {
         this.userService = userService;
         this.itemService = itemService;
+        this.userCacheService = userCacheService;
         this.bot = bot;
         this.userState = new Map();
     }
@@ -22,7 +23,7 @@ export class TelegramBotCommandHandler {
         const chatId = msg?.chat?.id;
 
         try {
-            await this.userService.getOrCreateUser(msg.from.id);
+            await this.userCacheService.getUserId(msg.from.id);
 
             this.bot.sendMessage(
                 chatId,
@@ -91,7 +92,7 @@ export class TelegramBotCommandHandler {
         const chatId = msg?.chat?.id;
 
         try {
-            const userId = await this.userService.getOrCreateUser(msg.from.id);
+            const userId = await this.userCacheService.getUserId(msg.from.id);
             const items = await this.itemService.getItems(userId);
 
             if (items.length === 0) {
@@ -148,7 +149,7 @@ export class TelegramBotCommandHandler {
             if (state?.mode !== "ADDING_ITEMS") return;
             if (!text || text.startsWith("/")) return;
 
-            const userId = await this.userService.getOrCreateUser(msg.from.id);
+            const userId = await this.userCacheService.getUserId(msg.from.id);
             await this.itemService.addItem(userId, text.trim());
 
             this.bot.sendMessage(
@@ -173,7 +174,7 @@ export class TelegramBotCommandHandler {
         const chatId = msg?.chat?.id;
 
         try {
-            const userId = await this.userService.getOrCreateUser(msg.from.id);
+            const userId = await this.userCacheService.getUserId(msg.from.id);
             this.userState.delete(userId);
 
             this.bot.sendMessage(
@@ -195,7 +196,7 @@ export class TelegramBotCommandHandler {
         const chatId = msg?.chat?.id;
 
         try {
-            const userId = await this.userService.getOrCreateUser(msg.from.id);
+            const userId = await this.userCacheService.getUserId(msg.from.id);
             const items = await this.itemService.getUnboughtItems(userId);
 
             if (items.length === 0) {
@@ -251,7 +252,7 @@ export class TelegramBotCommandHandler {
         const chatId = msg.chat.id;
 
         try {
-            const userId = await this.userService.getOrCreateUser(msg.from.id);
+            const userId = await this.userCacheService.getUserId(msg.from.id);
             const items = await this.itemService.getItems(userId);
 
             if (!items.length) {
