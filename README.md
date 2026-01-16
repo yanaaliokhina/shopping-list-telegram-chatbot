@@ -3,6 +3,10 @@
 A lightweight, user-friendly Telegram chatbot that helps users manage their shopping lists efficiently.
 The bot supports adding, viewing, deleting, and marking items as bought, with a clean UX and scalable backend architecture.
 
+<img width="300" height="450" alt="start_view_items" padding="20px" src="https://github.com/user-attachments/assets/e246404b-0181-442f-941a-15635c3a2c08" />
+<img width="300" height="450" alt="add_items_0" src="https://github.com/user-attachments/assets/3528bcc9-4c56-450d-b684-7302b7ef2d3f" />
+<img width="300" height="450" alt="stop_bot" src="https://github.com/user-attachments/assets/d6b64ab2-b2dd-41dd-9572-743b77347073" />
+
 
 ## System requirements
 
