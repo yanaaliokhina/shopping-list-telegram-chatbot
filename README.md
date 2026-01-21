@@ -108,7 +108,7 @@ npm run start
 ```
 
 
-## 🐳 How to Run with Docker (Recommended)
+## 🐳 How to Run Locally with Docker (Recommended)
 
 Prerequisites
 * Docker
