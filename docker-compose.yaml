@@ -18,13 +18,14 @@ services:
 
     environment:
       NODE_ENV: production
-      DATABASE_PATH: /app/shopping.db
+      DATABASE_PATH: /app/data/shopping.db
       MEMCACHE_URL: memcached:11211
       CACHE_TTL_SECONDS: 3600
 
     depends_on:
       - memcached
 
+    # Persist SQLite database
     volumes:
       - ./data:/app/data
 

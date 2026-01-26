@@ -8,7 +8,7 @@ The bot supports adding, viewing, deleting, and marking items as bought, with a 
 <img width="300" height="450" alt="stop_bot" src="https://github.com/user-attachments/assets/d6b64ab2-b2dd-41dd-9572-743b77347073" />
 
 
-## System requirements
+## 🧱 System requirements
 
 * Node.js >= 18.x
 * npm >= 9.x
@@ -46,7 +46,7 @@ The bot supports adding, viewing, deleting, and marking items as bought, with a 
 * Best-effort: failures never block user actions
 
 
-## Supported Functionality
+## ✨ Supported Functionality
 
 1. **➕ Add Items**
 
